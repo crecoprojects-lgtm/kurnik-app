@@ -1,0 +1,6 @@
+{
+  "name": "Cluck & Collect",
+  "description": "Interaktywna aplikacja do zarządzania kurnikiem: zbiór jajek, stado kur, finanse, baza klientów i statystyki.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
