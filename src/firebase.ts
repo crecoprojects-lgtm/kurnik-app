@@ -22,12 +22,12 @@ import { getFirestore } from "firebase/firestore";
 // Definicja konfiguracji z bezpiecznym odczytem zmiennych środowiskowych z pliku .env
 // Zmienne te są automatycznie pobierane z Twojego bezpiecznego pliku .env
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "", // <-- Puste? To znak, że działamy w bezpiecznym trybie testowym LocalStorage!
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "",
+  apiKey: "AIzaSyACmtZv2EVzDPwT4vTojcQTHryE3QXpiD4",
+  authDomain: "moj-kurnik-app.firebaseapp.com",
+  projectId: "moj-kurnik-app",
+  storageBucket: "moj-kurnik-app.firebasestorage.app",
+  messagingSenderId: "400007130645",
+  appId: "1:400007130645:web:b769c42053601191a2a81c"
 };
 
 // Sprawdzenie, czy konfiguracja została uzupełniona we własnym pliku .env

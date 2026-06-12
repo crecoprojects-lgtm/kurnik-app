@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Home, Egg, Users, BarChart2, ShieldAlert, Sparkles, Smile, Heart } from 'lucide-react';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db, isFirebaseConfigured } from './firebase';
 import { Chicken, Client, HarvestLog, AlertLog, EggFuture, Achievement, FeedLog } from './types';
 import { 
   DEFAULT_CHICKENS, 
@@ -112,16 +114,14 @@ export default function App() {
   // Feed Stock Level in kg
   const [feedStock, setFeedStock] = useState<number>(() => {
     const saved = localStorage.getItem('farmer_feed_stock');
-    return saved ? parseInt(saved, 10) : 15; // default 15kg
+    return saved ? parseInt(saved, 10) : 0; // default 0kg
   });
 
   // Feed Operations History
   const [feedLogs, setFeedLogs] = useState<FeedLog[]>(() => {
     const saved = localStorage.getItem('farmer_feed_logs');
     if (saved) return JSON.parse(saved);
-    return [
-      { id: 'f0', timestamp: 'Wczoraj, 10:00', type: 'korekta', amount: 15, currentStockAfter: 15, note: 'Początkowy zapas paszy w spichlerzu' }
-    ];
+    return [];
   });
 
   // Achievements master list
@@ -149,13 +149,13 @@ export default function App() {
   // Chcikens (STADO) list
   const [chickens, setChickens] = useState<Chicken[]>(() => {
     const saved = localStorage.getItem('farmer_chickens');
-    return saved ? JSON.parse(saved) : DEFAULT_CHICKENS;
+    return saved ? JSON.parse(saved) : [];
   });
 
   // Egg Clients list
   const [clients, setClients] = useState<Client[]>(() => {
     const saved = localStorage.getItem('farmer_clients');
-    return saved ? JSON.parse(saved) : DEFAULT_CLIENTS;
+    return saved ? JSON.parse(saved) : [];
   });
 
   // Harvest logs
@@ -192,7 +192,42 @@ export default function App() {
   // Simple Notification banner of key event
   const [appBanner, setAppBanner] = useState<string | null>(null);
 
-  // Sync to localStorage
+  // Sync to localStorage and Firebase
+  const [isCloudLoaded, setIsCloudLoaded] = useState(false);
+
+  useEffect(() => {
+    const fetchCloud = async () => {
+      if (!isFirebaseConfigured || !db) {
+        setIsCloudLoaded(true);
+        return;
+      }
+      try {
+        const farmDoc = await getDoc(doc(db, "farms", "my_farm"));
+        if (farmDoc.exists()) {
+          const data = farmDoc.data();
+          if (data.farmerName !== undefined) setFarmerName(data.farmerName);
+          if (data.avatarUrl !== undefined) setAvatarUrl(data.avatarUrl);
+          if (data.cashInNest !== undefined) setCashInNest(data.cashInNest);
+          if (data.todayEggsCount !== undefined) setTodayEggsCount(data.todayEggsCount);
+          if (data.eggsInStock !== undefined) setEggsInStock(data.eggsInStock);
+          if (data.feedStock !== undefined) setFeedStock(data.feedStock);
+          if (data.eggPrice !== undefined) setEggPrice(data.eggPrice);
+          if (data.chickens) setChickens(data.chickens);
+          if (data.clients) setClients(data.clients);
+          if (data.harvestLogs) setHarvestLogs(data.harvestLogs);
+          if (data.alerts) setAlerts(data.alerts);
+          if (data.futures) setFutures(data.futures);
+          if (data.feedLogs) setFeedLogs(data.feedLogs);
+        }
+      } catch (err) {
+        console.error("Cloud fetch error", err);
+      } finally {
+        setIsCloudLoaded(true);
+      }
+    };
+    fetchCloud();
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('farmer_name', farmerName);
     localStorage.setItem('farmer_avatar', avatarUrl);
@@ -216,8 +251,20 @@ export default function App() {
       setLastSyncTime(`${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`);
     }, 600);
 
-    return () => clearTimeout(timer);
-  }, [farmerName, avatarUrl, cashInNest, todayEggsCount, eggsInStock, feedStock, eggPrice, chickens, clients, harvestLogs, alerts, futures, feedLogs]);
+    let cloudTimer: any;
+    if (isCloudLoaded && isFirebaseConfigured && db) {
+      cloudTimer = setTimeout(() => {
+        setDoc(doc(db, "farms", "my_farm"), {
+          farmerName, avatarUrl, cashInNest, todayEggsCount, eggsInStock, feedStock, eggPrice, chickens, clients, harvestLogs, alerts, futures, feedLogs
+        }).catch(err => console.error("Cloud write error", err));
+      }, 1500); // 1.5s debounce to protect free tier
+    }
+
+    return () => {
+      clearTimeout(timer);
+      if (cloudTimer) clearTimeout(cloudTimer);
+    };
+  }, [isCloudLoaded, farmerName, avatarUrl, cashInNest, todayEggsCount, eggsInStock, feedStock, eggPrice, chickens, clients, harvestLogs, alerts, futures, feedLogs]);
 
   // Reactive achievements progress checker
   useEffect(() => {
