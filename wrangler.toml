@@ -1,0 +1,6 @@
+name = "kurnik-app"
+compatibility_date = "2026-06-12"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./dist"
