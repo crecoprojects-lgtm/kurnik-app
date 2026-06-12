@@ -88,45 +88,45 @@ export default function App() {
 
   // Core Farm Stats States with LocalStorage
   const [farmerName, setFarmerName] = useState<string>(() => {
-    return localStorage.getItem('farmer_name') || 'Mój Kurnik';
+    return localStorage.getItem('farmer_v2_name') || 'Mój Kurnik';
   });
 
   const [avatarUrl, setAvatarUrl] = useState<string>(() => {
-    return localStorage.getItem('farmer_avatar') || '/portrety/gospodarze/gospodarz1.png';
+    return localStorage.getItem('farmer_v2_avatar') || '/portrety/gospodarze/gospodarz1.png';
   });
 
   const [cashInNest, setCashInNest] = useState<number>(() => {
-    const saved = localStorage.getItem('farmer_cash');
+    const saved = localStorage.getItem('farmer_v2_cash');
     return saved ? parseFloat(saved) : 0.00;
   });
 
   const [todayEggsCount, setTodayEggsCount] = useState<number>(() => {
-    const saved = localStorage.getItem('farmer_today_eggs');
+    const saved = localStorage.getItem('farmer_v2_today_eggs');
     return saved ? parseInt(saved, 10) : 0;
   });
 
   // Main Stock Inventory count of eggs currently on hand
   const [eggsInStock, setEggsInStock] = useState<number>(() => {
-    const saved = localStorage.getItem('farmer_eggs_in_stock');
+    const saved = localStorage.getItem('farmer_v2_eggs_in_stock');
     return saved ? parseInt(saved, 10) : 0;
   });
 
   // Feed Stock Level in kg
   const [feedStock, setFeedStock] = useState<number>(() => {
-    const saved = localStorage.getItem('farmer_feed_stock');
+    const saved = localStorage.getItem('farmer_v2_feed_stock');
     return saved ? parseInt(saved, 10) : 0; // default 0kg
   });
 
   // Feed Operations History
   const [feedLogs, setFeedLogs] = useState<FeedLog[]>(() => {
-    const saved = localStorage.getItem('farmer_feed_logs');
+    const saved = localStorage.getItem('farmer_v2_feed_logs');
     if (saved) return JSON.parse(saved);
     return [];
   });
 
   // Achievements master list
   const [achievements, setAchievements] = useState<Achievement[]>(() => {
-    const saved = localStorage.getItem('farmer_achievements');
+    const saved = localStorage.getItem('farmer_v2_achievements');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -142,37 +142,37 @@ export default function App() {
 
   // Egg prices
   const [eggPrice, setEggPrice] = useState<number>(() => {
-    const saved = localStorage.getItem('farmer_egg_price');
+    const saved = localStorage.getItem('farmer_v2_egg_price');
     return saved ? parseFloat(saved) : 1.20;
   });
 
   // Chcikens (STADO) list
   const [chickens, setChickens] = useState<Chicken[]>(() => {
-    const saved = localStorage.getItem('farmer_chickens');
+    const saved = localStorage.getItem('farmer_v2_chickens');
     return saved ? JSON.parse(saved) : [];
   });
 
   // Egg Clients list
   const [clients, setClients] = useState<Client[]>(() => {
-    const saved = localStorage.getItem('farmer_clients');
+    const saved = localStorage.getItem('farmer_v2_clients');
     return saved ? JSON.parse(saved) : [];
   });
 
   // Harvest logs
   const [harvestLogs, setHarvestLogs] = useState<HarvestLog[]>(() => {
-    const saved = localStorage.getItem('farmer_harvests');
+    const saved = localStorage.getItem('farmer_v2_harvests');
     return saved ? JSON.parse(saved) : [];
   });
 
   // Wydajność alerts list
   const [alerts, setAlerts] = useState<AlertLog[]>(() => {
-    const saved = localStorage.getItem('farmer_alerts');
+    const saved = localStorage.getItem('farmer_v2_alerts');
     return saved ? JSON.parse(saved) : [];
   });
 
   // Egg Futures Contracts
   const [futures, setFutures] = useState<EggFuture[]>(() => {
-    const saved = localStorage.getItem('farmer_futures');
+    const saved = localStorage.getItem('farmer_v2_futures');
     return saved ? JSON.parse(saved) : [];
   });
 
@@ -202,7 +202,7 @@ export default function App() {
         return;
       }
       try {
-        const farmDoc = await getDoc(doc(db, "farms", "my_farm"));
+        const farmDoc = await getDoc(doc(db, "farms", "my_farm_v2"));
         if (farmDoc.exists()) {
           const data = farmDoc.data();
           if (data.farmerName !== undefined) setFarmerName(data.farmerName);
@@ -229,19 +229,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('farmer_name', farmerName);
-    localStorage.setItem('farmer_avatar', avatarUrl);
-    localStorage.setItem('farmer_cash', cashInNest.toString());
-    localStorage.setItem('farmer_today_eggs', todayEggsCount.toString());
-    localStorage.setItem('farmer_eggs_in_stock', eggsInStock.toString());
-    localStorage.setItem('farmer_feed_stock', feedStock.toString());
-    localStorage.setItem('farmer_egg_price', eggPrice.toString());
-    localStorage.setItem('farmer_chickens', JSON.stringify(chickens));
-    localStorage.setItem('farmer_clients', JSON.stringify(clients));
-    localStorage.setItem('farmer_harvests', JSON.stringify(harvestLogs));
-    localStorage.setItem('farmer_alerts', JSON.stringify(alerts));
-    localStorage.setItem('farmer_futures', JSON.stringify(futures));
-    localStorage.setItem('farmer_feed_logs', JSON.stringify(feedLogs));
+    localStorage.setItem('farmer_v2_name', farmerName);
+    localStorage.setItem('farmer_v2_avatar', avatarUrl);
+    localStorage.setItem('farmer_v2_cash', cashInNest.toString());
+    localStorage.setItem('farmer_v2_today_eggs', todayEggsCount.toString());
+    localStorage.setItem('farmer_v2_eggs_in_stock', eggsInStock.toString());
+    localStorage.setItem('farmer_v2_feed_stock', feedStock.toString());
+    localStorage.setItem('farmer_v2_egg_price', eggPrice.toString());
+    localStorage.setItem('farmer_v2_chickens', JSON.stringify(chickens));
+    localStorage.setItem('farmer_v2_clients', JSON.stringify(clients));
+    localStorage.setItem('farmer_v2_harvests', JSON.stringify(harvestLogs));
+    localStorage.setItem('farmer_v2_alerts', JSON.stringify(alerts));
+    localStorage.setItem('farmer_v2_futures', JSON.stringify(futures));
+    localStorage.setItem('farmer_v2_feed_logs', JSON.stringify(feedLogs));
 
     // Autosync visual trigger
     setIsSyncing(true);
@@ -254,7 +254,7 @@ export default function App() {
     let cloudTimer: any;
     if (isCloudLoaded && isFirebaseConfigured && db) {
       cloudTimer = setTimeout(() => {
-        setDoc(doc(db, "farms", "my_farm"), {
+        setDoc(doc(db, "farms", "my_farm_v2"), {
           farmerName, avatarUrl, cashInNest, todayEggsCount, eggsInStock, feedStock, eggPrice, chickens, clients, harvestLogs, alerts, futures, feedLogs
         }).catch(err => console.error("Cloud write error", err));
       }, 1500); // 1.5s debounce to protect free tier
@@ -350,7 +350,7 @@ export default function App() {
       });
 
       if (changed) {
-        localStorage.setItem('farmer_achievements', JSON.stringify(updated));
+        localStorage.setItem('farmer_v2_achievements', JSON.stringify(updated));
         return updated;
       }
       return prev;
