@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Star, Trophy, Award, Lock, HelpCircle, Activity, Sparkles, TrendingUp, DollarSign, X } from 'lucide-react';
-import { Achievement, HarvestLog } from '../types';
+import { Achievement, HarvestLog, Client } from '../types';
 
 interface StatsViewProps {
   farmerName: string;
   eggPrice: number;
   achievements: Achievement[];
   harvestLogs: HarvestLog[];
+  clients: Client[];
 }
 
 interface DayStat {
@@ -15,7 +16,7 @@ interface DayStat {
   highlighted?: boolean;
 }
 
-export default function StatsView({ farmerName, eggPrice, achievements = [], harvestLogs = [] }: StatsViewProps) {
+export default function StatsView({ farmerName, eggPrice, achievements = [], harvestLogs = [], clients = [] }: StatsViewProps) {
   const [showAllModal, setShowAllModal] = useState(false);
   const [hoveredDay, setHoveredDay] = useState<DayStat | null>(null);
 
@@ -40,11 +41,10 @@ export default function StatsView({ farmerName, eggPrice, achievements = [], har
         return log.dateKey === dayHash;
       });
       
-      const totalLaid = itemsForDay.reduce((sum, item) => sum + item.count, 0);
+      const totalLaid = itemsForDay.reduce((sum: number, item: HarvestLog) => sum + item.count, 0);
       result.push({
         day: label,
-        // If there's real interaction use it, otherwise use a realistic proportional default for gaming fun
-        count: totalLaid > 0 ? totalLaid : Math.floor(25 + (Math.sin(d.getDate()) * 12)) 
+        count: totalLaid
       });
     }
 
@@ -179,7 +179,7 @@ export default function StatsView({ farmerName, eggPrice, achievements = [], har
             </span>
             <div className="flex items-baseline gap-1 mt-0.5">
               <span className="font-display font-extrabold text-lg text-emerald-950">
-                {(totalWeekly * eggPrice * 4).toFixed(0)} PLN
+                {(clients.reduce((sum: number, c: Client) => sum + (c.monthlyDemand || 0), 0) * eggPrice).toFixed(0)} PLN
               </span>
               <span className="text-[9px] font-bold text-emerald-800 font-sans">szac.</span>
             </div>

@@ -1076,6 +1076,7 @@ export default function App() {
               eggPrice={eggPrice} 
               achievements={achievements}
               harvestLogs={harvestLogs}
+              clients={clients}
             />
           )}
         </main>
